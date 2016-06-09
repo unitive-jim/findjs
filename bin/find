@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+'use strict';
+
+const _ = require('lodash');
+const program = require('commander');
+const descendents = require('../lib/descendents');
+
+function collect(val, memo) {
+  memo.push(val);
+  return memo;
+}
+
+program
+  .option('-f, --file-match [pattern]', 'Include files that match pattern', collect, [])
+  .option('-d, --dir-match [pattern]', 'Exclude directories matching pattern', collect, [])
+  .parse(process.argv);
+
+const includes = program.fileMatch.length ? _.map(program.fileMatch, (p) => new RegExp(p)) : [ /\.js$/ ];
+const excludes = program.dirMatch.length ? _.map(program.dirMatch, (p) => new RegExp(p)) : [ /node_modules\// ];
+const roots = program.args.length ? program.args : [ './' ];
+
+_.each(roots, (root) => {
+  return descendents.all(root, includes, excludes)
+    .then((files) => _.each(files, (f) => console.log(f)));
+});

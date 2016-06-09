@@ -1,0 +1,26 @@
+{
+  "name": "findjs",
+  "version": "1.0.0",
+  "description": "walk a file hierarchy, returning files satisfying criteria",
+  "main": "index.js",
+  "bin": {
+    "findjs": "./bin/findjs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "find",
+    "search",
+    "file"
+  ],
+  "dependencies": {
+    "bluebird": "3.3.4",
+    "commander": "2.9.0",
+    "debug": "2.2.0",
+    "lodash": "4.13.1"
+  },
+  "author": "Jim Lloyd <jim@unitive.works>",
+  "license": "ISC",
+  "devDependencies": {}
+}
