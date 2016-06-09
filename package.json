@@ -22,5 +22,13 @@
   },
   "author": "Jim Lloyd <jim@unitive.works>",
   "license": "ISC",
-  "devDependencies": {}
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unitive-jim/findjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unitive-jim/findjs/issues"
+  },
+  "homepage": "https://github.com/unitive-jim/findjs#readme"
 }
