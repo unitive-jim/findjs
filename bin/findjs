@@ -15,8 +15,11 @@ program
   .option('-d, --dir-match [pattern]', 'Exclude directories matching pattern', collect, [])
   .parse(process.argv);
 
-const includes = program.fileMatch.length ? _.map(program.fileMatch, (p) => new RegExp(p)) : [ /\.js$/ ];
-const excludes = program.dirMatch.length ? _.map(program.dirMatch, (p) => new RegExp(p)) : [ /node_modules\// ];
+const defaultFileIncludes = [ /\.js$/ ];
+const defaultDirExcludes = [ /node_modules\//, /.git\// ];
+
+const includes = program.fileMatch.length ? _.map(program.fileMatch, (p) => new RegExp(p)) : defaultFileIncludes;
+const excludes = program.dirMatch.length ? _.map(program.dirMatch, (p) => new RegExp(p)) : defaultDirExcludes;
 const roots = program.args.length ? program.args : [ './' ];
 
 _.each(roots, (root) => {
