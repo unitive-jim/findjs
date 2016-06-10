@@ -17,6 +17,8 @@ function collect(val, memo) {
 }
 
 program
+  .description('Walk a file hierarchy, listing or grepping matching files')
+  .usage('[options] [path...]', 'get stream URL')
   .option('-f, --file-match [pattern]', 'Include files that match pattern', collect, [])
   .option('-d, --dir-match [pattern]', 'Exclude directories matching pattern', collect, [])
   .option('-g, --grep [pattern]', 'Instead of listing files, grep each file for pattern')
