@@ -2,6 +2,7 @@
 'use strict';
 
 const _ = require('lodash');
+const chalk = require('chalk');
 const debug = require('debug');
 const descendents = require('../lib/descendents');
 const P = require('bluebird');
@@ -44,7 +45,7 @@ function doGrep(f) {
     const p = spawn('grep', [ '-E', '-n', program.grep, f ]);
     p.stdout.on('data', (data) => {
       if (!matched) {
-        console.log(f);
+        console.log(chalk.bold(f));
         matched = true;
       }
       console.log(data.toString());
