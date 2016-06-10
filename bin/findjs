@@ -3,7 +3,10 @@
 
 const _ = require('lodash');
 const program = require('commander');
+const debug = require('debug');
 const descendents = require('../lib/descendents');
+
+const dlog = debug('findjs:main');
 
 function collect(val, memo) {
   memo.push(val);
