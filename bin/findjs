@@ -2,8 +2,14 @@
 'use strict';
 
 const _ = require('lodash');
-const program = require('commander');
+const chalk = require('chalk');
+const debug = require('debug');
 const descendents = require('../lib/descendents');
+const P = require('bluebird');
+const program = require('commander');
+const spawn = require('child_process').spawn;
+
+const dlog = debug('findjs:main');
 
 function collect(val, memo) {
   memo.push(val);
@@ -11,8 +17,12 @@ function collect(val, memo) {
 }
 
 program
+  .description('Walk a file hierarchy, listing or grepping matching files')
+  .usage('[options] [path...]', 'get stream URL')
   .option('-f, --file-match [pattern]', 'Include files that match pattern', collect, [])
   .option('-d, --dir-match [pattern]', 'Exclude directories matching pattern', collect, [])
+  .option('-g, --grep [pattern]', 'Instead of listing files, grep each file for pattern')
+  .option('-m, --match [pattern]', 'Only list files which contain pattern (grep -l)')
   .parse(process.argv);
 
 const defaultFileIncludes = [ /\.js$/ ];
@@ -22,7 +32,48 @@ const includes = program.fileMatch.length ? _.map(program.fileMatch, (p) => new 
 const excludes = program.dirMatch.length ? _.map(program.dirMatch, (p) => new RegExp(p)) : defaultDirExcludes;
 const roots = program.args.length ? program.args : [ './' ];
 
-_.each(roots, (root) => {
-  return descendents.all(root, includes, excludes)
-    .then((files) => _.each(files, (f) => console.log(f)));
-});
+function getAllFiles() {
+  dlog(`getAllFiles(${roots})`);
+  return P.map(roots, (root) => {
+    return descendents.all(root, includes, excludes);
+  })
+  .then((results) => _.flatten(results));
+}
+
+function doGrep(f) {
+  return new P((resolve) => {
+    dlog(`grep -E -H -n ${program.grep} ${f}`);
+    let matched = false;
+    const p = spawn('grep', [ '-E', '-n', program.grep, f ]);
+    p.stdout.on('data', (data) => {
+      if (!matched) {
+        console.log(chalk.bold(f));
+        matched = true;
+      }
+      console.log(data.toString());
+    });
+    p.on('close', () => resolve());
+  });
+}
+
+function doMatch(f) {
+  return new P((resolve) => {
+    dlog(`grep -E -l ${program.match} ${f}`);
+    const p = spawn('grep', [ '-E', '-l', program.match, f ]);
+    p.stdout.on('data', (data) => {
+      console.log(data.toString().trim());
+    });
+    p.on('close', () => resolve());
+  });
+}
+
+getAllFiles()
+  .then((files) => {
+    if (program.grep) {
+      return P.each(files, (f) => doGrep(f));
+    } else if (program.match) {
+      return P.each(files, (f) => doMatch(f));
+    } else {
+      return P.each(files, (f) => console.log(f));
+    }
+  });
