@@ -5,6 +5,7 @@ const _ = require('lodash');
 const program = require('commander');
 const debug = require('debug');
 const descendents = require('../lib/descendents');
+const P = require('bluebird');
 
 const dlog = debug('findjs:main');
 
@@ -25,7 +26,13 @@ const includes = program.fileMatch.length ? _.map(program.fileMatch, (p) => new 
 const excludes = program.dirMatch.length ? _.map(program.dirMatch, (p) => new RegExp(p)) : defaultDirExcludes;
 const roots = program.args.length ? program.args : [ './' ];
 
-_.each(roots, (root) => {
-  return descendents.all(root, includes, excludes)
-    .then((files) => _.each(files, (f) => console.log(f)));
-});
+function getAllFiles() {
+  dlog(`getAllFiles(${roots})`);
+  return P.map(roots, (root) => {
+    return descendents.all(root, includes, excludes);
+  })
+  .then((results) => _.flatten(results));
+}
+
+getAllFiles()
+  .then((files) => _.each(files, (f) => console.log(f)));
