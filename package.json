@@ -1,6 +1,6 @@
 {
   "name": "findjs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "walk a file hierarchy, returning files satisfying criteria",
   "main": "index.js",
   "bin": {
